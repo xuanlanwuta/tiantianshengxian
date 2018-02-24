@@ -87,10 +87,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tiantianshengxian',
-        'HOST': '127.0.0.1', # MySQL数据库地址
+        'HOST': '192.168.0.22', # MySQL数据库地址
         'PORT': '3306',
         'USER': 'root',
-        'PASSWORD': '77585214aq',
+        'PASSWORD': 'mysql',
     }
 }
 
@@ -124,3 +124,21 @@ EMAIL_PORT = 25 # 发邮件端口
 EMAIL_HOST_USER = 'zuiaichuju@126.com' # 授权的邮箱
 EMAIL_HOST_PASSWORD = 'qwer1234' # 邮箱授权时获得的密码，非注册登录密码
 EMAIL_FROM = '天天生鲜<dailyfreshzxc@yeah.net>' # 发件人抬头
+
+# 缓存
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://192.168.243.193:6379/5",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+
+# Session
+# http://django-redis-chs.readthedocs.io/zh_CN/latest/#session-backend
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

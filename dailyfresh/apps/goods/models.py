@@ -37,7 +37,7 @@ class Goods(BaseModel):
 
 class GoodsSKU(BaseModel):
     """商品SKU表"""
-    category = models.ForeignKey(GoodsCategory, verbose_name="类别")
+    category = models.ForeignKey(GoodsCategory, verbose_name="类别",on_delete=False)
     goods = models.ForeignKey(Goods, verbose_name="商品")
     name = models.CharField(max_length=100, verbose_name="名称")
     title = models.CharField(max_length=200, verbose_name="简介")
