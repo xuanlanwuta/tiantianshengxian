@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 # 创建celery应用对象
-app = Celery ('celery_tasks.tasks' , broker='redis://192.168.0.22:6379/4')
+app = Celery ('celery_tasks.tasks' , broker='redis://127.0.0.1:6379/4')
 
 
 @app.task
