@@ -11,28 +11,38 @@ from itsdangerous import SignatureExpired
 from django.contrib.auth import authenticate, login, logout
 from celery_tasks.tasks import send_active_email
 from utils.views import LoginRequiredMixin
-
-
+from goods.models import GoodsSKU
+from django_redis import get_redis_connection
 # Create your views here.
 class UserInfoView(LoginRequiredMixin, View):
-    """用户中心"""
+    """个人信息"""
 
     def get(self, request):
-        """查询用户信息和地址信息"""
+        """提供个人信息界面"""
 
-        # 从request中获取user对象，中间件从验证请求中的用户，所以request中带有user
+        # 获取用户信息user
         user = request.user
 
+        # 使用user查询其关联的地址信息address,需求是按照时间倒序排序
         try:
-            # 查询用户地址：根据创建时间排序，取第1个地址
             address = user.address_set.latest('create_time')
         except Address.DoesNotExist:
-            # 如果地址信息不存在
             address = None
+
+        # Redis数据库中查询商品浏览记录
+        redis_conn = get_redis_connection('default')
+        # 获取Redis存储的sku_id列表信息
+        sku_ids = redis_conn.lrange('history_%s'%user.id, 0, 4)
+        sku_list = []
+        # 根据sku_ids列表数据，查询出对应的商品sku信息
+        for sku_id in sku_ids:
+            sku = GoodsSKU.objects.get(id=sku_id)
+            sku_list.append(sku)
 
         # 构造上下文
         context = {
-            'address': address
+            'address': address,
+            'sku_list': sku_list
         }
 
         # 渲染模板
