@@ -165,7 +165,7 @@ class LoginView(View):
         # 1.获取用户登陆数据
         username = request.POST.get('username')
         userpwd = request.POST.get('pwd')
-        remembered = request.POST.get('remembered')
+
 
         # 2.校验用户登陆数据
         if not all([username, userpwd]):
@@ -181,9 +181,10 @@ class LoginView(View):
         # 5.验证用户是否是激活用户
         if user.is_active is False:
             return render(request, 'login.html', {'error': '请先激活'})
-
+        print(3)
         # 6.验证用户通过后，登入该用户
         login(request, user)
+        print(4)
         remembered = request.POST.get('remembered')
         # 7.记住用户
         if remembered != 'on':
@@ -193,11 +194,12 @@ class LoginView(View):
             # 记住用户：None表示两周后过期
             request.session.set_expiry(None)
         next = request.GET.get('next')
+        print(2)
         if next == None:
         # 8.响应结果: 重定向到主页
             return redirect(reverse('goods:index'))
         else:
-            return reverse(reverse(next))
+            return redirect(next)
 
 class LogoutView(View):
     """退出登录"""

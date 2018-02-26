@@ -129,7 +129,7 @@ EMAIL_FROM = '天天生鲜<zuiaichuju@126.com>' # 发件人抬头
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://192.168.243.193:6379/5",
+        "LOCATION": "redis://127.0.0.1:6379/5",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
