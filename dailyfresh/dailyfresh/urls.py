@@ -22,6 +22,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/',include('users.urls',namespace='users')),
     # url(r'^cart/',include('cart.urls',namespace='cart')),
-    # url(r'^goods/',include('goods.urls',namespace='goods')),
+    url(r'^',include('goods.urls',namespace='goods')),
     # url(r'^orders/',include('orders.urls',namespace='orders'))
 ]
