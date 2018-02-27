@@ -37,5 +37,5 @@ class IndexView(View):
             'promotion_banners':promotion_banners,
             'cart_num':cart_num
         }
-
+        # gg
         return render(request, 'index.html',context)
