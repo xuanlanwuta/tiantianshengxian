@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'dailyfresh.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tiantianshengxian',
+        'NAME': 'dailyfresh_24',
         'HOST': '192.168.0.22', # MySQL数据库地址
         'PORT': '3306',
         'USER': 'root',
@@ -130,7 +130,7 @@ EMAIL_FROM = '天天生鲜<zuiaichuju@126.com>' # 发件人抬头
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/5",
+        "LOCATION": "redis://192.168.0.22:6379/5",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -151,3 +151,9 @@ TINYMCE_DEFAULT_CONFIG = {
   'width': 600,
   'height': 400,
 }
+# 配置自定义文件存储系统
+DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.FastDFSStorage'
+# client.conf文件路径
+CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fastdfs/client.conf')
+# nginx服务器地址
+SERVER_IP = 'http://192.168.0.22:8888/'
