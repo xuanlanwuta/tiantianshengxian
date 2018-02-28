@@ -122,14 +122,14 @@ class RegisterView(View):
         except db.IntegrityError:
             return render(request, 'register.html', {'error': '用户名已注册'})
         print(email)
-        user.is_active = False
-        user.save()
+        # user.is_active = False
+        # user.save()
 
         token = user.generate_active_token()
 
         # 8.celery异步发送激活邮件
         send_active_email.delay(email, user_name, token)
-        return HttpResponse('收到POST请求，需要处理注册逻辑')
+        return redirect(reverse('goods:index'))
 
 
 class Activevies(View):
