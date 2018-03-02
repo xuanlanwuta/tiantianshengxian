@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'static_base.html' %}
 
 {% load staticfiles %}
 
@@ -49,7 +49,7 @@
 			<div class="subtitle fl">
 				<span>|</span>
                 {% for title_banner in category.title_banners %}
-                    <a href="{% url 'goods:detail' title_banner.sku.id%}">{{ title_banner.sku.name }}</a>
+                    <a href="#">{{ title_banner.sku.name }}</a>
                 {% endfor %}
 			</div>
 			<a href="#" class="goods_more fr" id="fruit_more">查看更多 ></a>
@@ -60,8 +60,8 @@
 			<ul class="goods_list fl">
                 {% for image_banner in category.image_banners %}
                     <li>
-                        <h4><a href="{% url 'goods:detail' image_banner.sku.id%}">{{ image_banner.sku.name }}</a></h4>
-                        <a href="{% url 'goods:detail' image_banner.sku.id%}"><img src="{{ image_banner.sku.default_image.url }}"></a>
+                        <h4><a href="{% url 'goods:detail' image_banner.sku.id %}">{{ image_banner.sku.name }}</a></h4>
+                        <a href="#"><img src="{{ image_banner.sku.default_image.url }}"></a>
                         <div class="prize">¥ {{ image_banner.sku.price }}</div>
 				    </li>
                 {% endfor %}
