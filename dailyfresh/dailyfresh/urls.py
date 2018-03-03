@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+import haystack.urls
 import tinymce.urls
 
 
@@ -26,4 +27,6 @@ urlpatterns = [
     url(r'^',include('goods.urls',namespace='goods')),
     # url(r'^orders/',include('orders.urls',namespace='orders'))
     url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^search/', include(haystack.urls)),
+    url(r'^cartt/',include('cart.urls',namespace='cart'))
 ]

@@ -37,7 +37,7 @@
 		</div>
 		<div class="adv fl">
             {% for promotion_banner in promotion_banners %}
-                <a href="#"><img src="{{ promotion_banner.image.url }}"></a>
+                <a href="{{ promotion_banner.url }}"><img src="{{ promotion_banner.image.url }}"></a>
             {% endfor %}
 		</div>
 	</div>

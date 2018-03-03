@@ -20,7 +20,7 @@
     </div>
 
     <div class="breadcrumb">
-        <a href="/">全部分类</a>
+        <a href="{% url 'goods:index' %}">全部分类</a>
         <span>></span>
         <a href="#">{{ sku.category.name }}</a>
         <span>></span>
@@ -138,7 +138,7 @@
         var $to_x = $('#show_count').offset().top;
         var $to_y = $('#show_count').offset().left;
 
-        $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+        $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});
         // 点击加入购物车
         $('#add_cart').click(function(){
             // 将商品的id 和 数量发送给后端视图，保存到购物车数据中
@@ -148,27 +148,27 @@
                 csrfmiddlewaretoken: "{{ csrf_token }}"
             };
             // 使用ajax向后端发送数据
-{#            $.post("/cart/add", req_data, function (response_data) {#}
-{#                // 根据response_data中的code决定处理效果#}
-{#                if (1 == response_data.code) {#}
-{#                    // 用户未登录#}
-{#                    window.location.href = "/users/login";  // 让页面跳转到登录页面#}
-{#                } else if (0 == response_data.code) {#}
-{#                    // 添加到购物车成功#}
-{#                    $(".add_jump").stop().animate({#}
-{#                        'left': $to_y+7,#}
-{#                        'top': $to_x+7},#}
-{#                        "fast", function() {#}
-{#                            $(".add_jump").fadeOut('fast',function(){#}
-{#                                $('#show_count').html(response_data.cart_num);#}
-{#                            });#}
-{#                    });#}
-{##}
-{#                } else {#}
-{#                    // 其他错误信息，alert展示#}
-{#                    alert(response_data.message);#}
-{#                }#}
-{#            }, "json");#}
+            $.post("/cart/add", req_data, function (response_data) {
+                // 根据response_data中的code决定处理效果
+                if (1 == response_data.code) {
+                    // 用户未登录
+                    window.location.href = "/users/login";  // 让页面跳转到登录页面
+                } else if (0 == response_data.code) {
+                    // 添加到购物车成功
+                    $(".add_jump").stop().animate({
+                        'left': $to_y+7,
+                        'top': $to_x+7},
+                        "fast", function() {
+                            $(".add_jump").fadeOut('fast',function(){
+                                $('#show_count').html(response_data.cart_num);
+                            });
+                    });
+
+                } else {
+                    // 其他错误信息，alert展示
+                    alert(response_data.message);
+                }
+            }, "json");
         });
         $("#add").click(function(){
             var num_show = $("#num_show").val();
