@@ -20,7 +20,7 @@
     </div>
 
     <div class="breadcrumb">
-        <a href="{% url 'goods:index' %}">全部分类</a>
+        <a href="/">全部分类</a>
         <span>></span>
         <a href="#">{{ sku.category.name }}</a>
         <span>></span>
@@ -91,7 +91,6 @@
                     <dd>{{ sku.goods.desc|safe }}</dd>
                 </dl>
             </div>
-
             <div class="tab_content" id="tab_comment" style="display: none;">
                 {% for order in orders %}
                 <dl>
@@ -138,7 +137,6 @@
         var $to_x = $('#show_count').offset().top;
         var $to_y = $('#show_count').offset().left;
 
-        $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});
         // 点击加入购物车
         $('#add_cart').click(function(){
             // 将商品的id 和 数量发送给后端视图，保存到购物车数据中
@@ -150,11 +148,10 @@
             // 使用ajax向后端发送数据
             $.post("/cart/add", req_data, function (response_data) {
                 // 根据response_data中的code决定处理效果
-                if (1 == response_data.code) {
-                    // 用户未登录
-                    window.location.href = "/users/login";  // 让页面跳转到登录页面
-                } else if (0 == response_data.code) {
-                    // 添加到购物车成功
+                if (0 == response_data.code) {
+                    // 添加到购物车成功动画
+                    $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});
+
                     $(".add_jump").stop().animate({
                         'left': $to_y+7,
                         'top': $to_x+7},
@@ -172,23 +169,23 @@
         });
         $("#add").click(function(){
             var num_show = $("#num_show").val();
-            num_show = parseInt(num_show)
+            num_show = parseInt(num_show);
             num_show += 1;
             $("#num_show").val(num_show);
-            var price = $(".show_pirze>em").html()
+            var price = $(".show_pirze>em").html();
             price = parseFloat(price);
             var total = price * num_show;
             $(".total>em").html(total.toFixed(2));
         });
         $("#minus").click(function(){
             var num_show = $("#num_show").val();
-            num_show = parseInt(num_show)
+            num_show = parseInt(num_show);
             num_show -= 1;
             if (num_show < 1){
                 num_show = 1;
             }
             $("#num_show").val(num_show);
-            var price = $(".show_pirze>em").html()
+            var price = $(".show_pirze>em").html();
             price = parseFloat(price);
             var total = price * num_show;
             $(".total>em").html(total.toFixed(2));

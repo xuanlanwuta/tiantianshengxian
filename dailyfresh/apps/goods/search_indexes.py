@@ -1,5 +1,5 @@
 from haystack import indexes
-from apps.goods.models import GoodsSKU
+from goods.models import GoodsSKU
 
 class GoodsSKUIndex(indexes.SearchIndex, indexes.Indexable):
     """建立索引时被使用的类"""

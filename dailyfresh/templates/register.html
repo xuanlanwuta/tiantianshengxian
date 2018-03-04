@@ -14,7 +14,7 @@
 <body>
 	<div class="register_con">
 		<div class="l_con fl">
-			<a class="reg_logo" href="{% url 'goods:index' %}"><img src="{% static 'images/logo02.png' %}"></a>
+			<a href="{% url 'goods:index' %}" class="reg_logo"><img src="{% static 'images/logo02.png' %}"></a>
 			<div class="reg_slogan">足不出户  ·  新鲜每一天</div>
 			<div class="reg_banner"></div>
 		</div>
@@ -27,7 +27,7 @@
 			<div class="reg_form clearfix">
 				<form method="post">
 
-                {% csrf_token %}
+                    {% csrf_token %}
 
 				<ul>
 					<li>
@@ -54,10 +54,10 @@
 						<input type="checkbox" name="allow" id="allow" checked="checked">
 						<label>同意”天天生鲜用户使用协议“</label>
 						<span class="error_tip2">提示信息</span>
-
-                        {# 后端校验的错误信息在前端展示 #}
-                        {{ error }}
 					</li>
+
+                    <div>{{ error }}</div>
+
 					<li class="reg_sub">
 						<input type="submit" value="注 册" name="">
 					</li>

@@ -181,10 +181,10 @@ class LoginView(View):
         # 5.验证用户是否是激活用户
         if user.is_active is False:
             return render(request, 'login.html', {'error': '请先激活'})
-        print(3)
+
         # 6.验证用户通过后，登入该用户
         login(request, user)
-        print(4)
+
         remembered = request.POST.get('remembered')
         # 7.记住用户
         if remembered != 'on':
@@ -193,8 +193,45 @@ class LoginView(View):
         else:
             # 记住用户：None表示两周后过期
             request.session.set_expiry(None)
+
+        # 在界面跳转之前,将cookie中的购物车信息合并到redis
+        cart_json = request.COOKIES.get('cart')
+        if cart_json is not None:
+            # 从cookie中得到的购物车字典,key是string,value是int
+            cart_dict_cookie = json.loads(cart_json)
+        else:
+            cart_dict_cookie = {}
+
+        # 查询redis中的购物车信息
+        redis_conn = get_redis_connection('default')
+        # 通过django_redis从redis中读取的购物车字典,key和value都是bytes类型的
+        cart_dict_redis = redis_conn.hgetall('cart_%s' % user.id)
+
+        # 遍历cart_dict_cookie,取出其中的sku_id和count信息,存储到redis
+        for sku_id, count in cart_dict_cookie.items():
+
+            # 将string转bytes
+            # 提醒 : 在做计算和比较时,需要记住类型统一
+            sku_id = sku_id.encode()
+            if sku_id in cart_dict_redis:
+                origin_count = cart_dict_redis[sku_id]
+                count += int(origin_count)
+
+                # 在这里合并有可能造成库存不足
+                # sku = GoodsSKU.objects.get(id=sku_id)
+                # if count > sku.stock:
+                # pass # 具体如何处理,只要不影响登录的正常流程即可
+
+            # 保存合并的数据到redis
+            cart_dict_redis[sku_id] = count
+
+        # 一次性向redis中新增多条记录
+        if cart_dict_redis:
+            redis_conn.hmset('cart_%s' % user.id, cart_dict_redis)
+
+
         next = request.GET.get('next')
-        print(2)
+
         if next == None:
         # 8.响应结果: 重定向到主页
             return redirect(reverse('goods:index'))

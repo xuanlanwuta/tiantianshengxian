@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 富文本
     'tinymce',
-    'haystack'
+    'haystack',
     'users',
     'goods',
     'orders',
@@ -163,19 +163,19 @@ SERVER_IP = 'http://192.168.0.22:8888/'
 
 # 富文本编辑器样式
 TINYMCE_DEFAULT_CONFIG = {
-  'theme': 'advanced', # 丰富样式
-  'width': 600,
-  'height': 400,
+    'theme': 'advanced', # 丰富样式
+    'width': 600,
+    'height': 400,
 }
 
 # 配置搜索引擎后端
 HAYSTACK_CONNECTIONS = {
-  'default': {
+    'default': {
       # 使用whoosh引擎：提示，如果不需要使用jieba框架实现分词，就使用whoosh_backend
-      'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+      'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
       # 索引文件路径
       'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
-  }
+    }
 }
 # 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 2

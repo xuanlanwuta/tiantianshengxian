@@ -1,7 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
+
     {% load staticfiles %}
+
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>天天生鲜-登录</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
@@ -23,18 +25,16 @@
 				</div>
 				<div class="form_input">
 					<form method="post">
+
                         {% csrf_token %}
-						<input type="text" name="username" class="name_input" placeholder="请输入用户名">
-						{# <div class="user_error">输入错误</div> #}
+
+						<input type="text" name="user_name" class="name_input" placeholder="请输入用户名">
+{#						<div class="user_error">输入错误</div>#}
 						<input type="password" name="pwd" class="pass_input" placeholder="请输入密码">
-						{# <div class="pwd_error">输入错误</div> #}
+{#						<div class="pwd_error">输入错误</div>#}
 						<div class="more_input clearfix">
 							<input type="checkbox" name="remembered">
 							<label>记住用户名</label>
-
-                            {# 测试错误信息 #}
-                            {{ error }}
-
 						</div>
 						<input type="submit" name="" value="登录" class="input_submit">
 					</form>

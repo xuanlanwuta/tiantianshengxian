@@ -20,6 +20,9 @@
 {% block body %}
     <div class="main_wrap clearfix">
         <ul class="goods_type_list clearfix">
+        {# 遍历page的结果不是直接得到 GoodsSKu,而是得到result对象 #}
+        {# 我们需要展示的GoodsSKU在 result对象的object属性中 #}
+        {# result.object == GoodsSKU #}
         {% for result in page %}
             <li>
                 {# object取得才是sku对象 #}
