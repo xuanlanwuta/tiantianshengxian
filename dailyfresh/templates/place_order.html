@@ -6,7 +6,7 @@
 
 {% block search_bar %}
 	<div class="search_bar clearfix">
-		<a href="{% url 'goods:index' %}" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
+		<a href="/index" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
 		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;提交订单</div>
 		<div class="search_con fr">
 			<form action="/search/" method="get">
@@ -111,24 +111,25 @@
 					sku_ids: "{{ sku_ids }}",
                     csrfmiddlewaretoken: "{{ csrf_token }}"
 				};
-				$.post('#', order_data, function(data){
+				$.post('/orders/commit', order_data, function(data){
 					if (1 == data.code) {
                         location.href = '/users/login';
                     } else if (6 == data.code) {
 						alert("库存不足，请修改订单！");
 					} else if (0 == data.code) {
+					    // alert(data.message);
 						$('.popup_con').fadeIn('fast', function() {
 							setTimeout(function(){
 								$('.popup_con').fadeOut('fast',function(){
 									location.href = '/orders/1';
-								});	
-							},3000)	
+								});
+							},3000)
 						});
 					} else {
-					    alert("下单失败，请重试！");
+					    alert(data.code);
                     }
 				});
 			}
 		});
-	</script>
+	</script>a
 {% endblock %}

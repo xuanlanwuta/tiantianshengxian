@@ -1,8 +1,12 @@
 from django.conf.urls import url
 from orders import views
 
-
 urlpatterns = [
-    # 订单确认 : http://127.0.0.1:8000/orders/place (需要的sku_id和count存放在post请求体中)
-    url(r'^place$', views.PlaceOrderView.as_view(), name='place')
+    # 订单确认
+    url(r'^place$', views.PlaceOrderView.as_view(), name='place'),
+    # 订单提交
+    url(r'^commit$', views.CommitOrderView.as_view(), name='commit'),
+    # 订单信息页面
+    url(r'^(?P<page>\d+)$', views.UserOrdersView.as_view(), name='info')
+
 ]

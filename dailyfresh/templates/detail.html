@@ -30,6 +30,12 @@
     <div class="goods_detail_con clearfix">
         <div class="goods_detail_pic fl"><img src="{{ sku.default_image.url }}"></div>
 
+        <form method="post" action="{% url 'orders:place' %}">
+
+        {% csrf_token %}
+
+            <input type="hidden" name="sku_ids" value="{{ sku.id }}">
+
         <div class="goods_detail_list fr">
             <h3>{{ sku.name}}</h3>
             <p>{{ sku.title }}</p>
@@ -50,17 +56,18 @@
             <div class="goods_num clearfix">
                 <div class="num_name fl">数 量：</div>
                 <div class="num_add fl">
-                    <input type="text" class="num_show fl" id="num_show" value="1">
+                    <input type="text" class="num_show fl" id="num_show" name="count" value="1">
                     <a href="javascript:;" class="add fr" id="add">+</a>
                     <a href="javascript:;" class="minus fr" id="minus">-</a>
                 </div>
             </div>
             <div class="total">总价：<em>{{ sku.price }}</em>元</div>
             <div class="operate_btn">
-                <a href="javascript:;" class="buy_btn" id="buy_btn">立即购买</a>
+                <input type="submit" class="buy_btn" id="buy_btn" value="立即购买">
                 <a href="javascript:;" class="add_cart" sku_id="{{ sku.id }}" id="add_cart">加入购物车</a>
             </div>
         </div>
+    </form>
     </div>
 
     <div class="main_wrap clearfix">
@@ -91,6 +98,7 @@
                     <dd>{{ sku.goods.desc|safe }}</dd>
                 </dl>
             </div>
+
             <div class="tab_content" id="tab_comment" style="display: none;">
                 {% for order in orders %}
                 <dl>
@@ -126,10 +134,10 @@
             $("#tab_comment").show();
         });
 
-        $("#buy_btn").click(function(){
-            var count = $("#num_show").val();
-            window.location.href = '/order/commit?g={{goods.id}}@' + count;
-        });
+{#        $("#buy_btn").click(function(){#}
+{#            var count = $("#num_show").val();#}
+{#            window.location.href = '/order/commit?g={{goods.id}}@' + count;#}
+{#        });#}
 
         var $add_x = $('#add_cart').offset().top;
         var $add_y = $('#add_cart').offset().left;

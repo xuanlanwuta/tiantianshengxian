@@ -13,6 +13,7 @@ from celery_tasks.tasks import send_active_email
 from utils.views import LoginRequiredMixin
 from goods.models import GoodsSKU
 from django_redis import get_redis_connection
+import json
 # Create your views here.
 class UserInfoView(LoginRequiredMixin, View):
     """个人信息"""
@@ -121,7 +122,7 @@ class RegisterView(View):
 
         except db.IntegrityError:
             return render(request, 'register.html', {'error': '用户名已注册'})
-        print(email)
+
         # user.is_active = False
         # user.save()
 
@@ -163,11 +164,12 @@ class LoginView(View):
         """处理登陆逻辑"""
 
         # 1.获取用户登陆数据
-        username = request.POST.get('username')
+        username = request.POST.get('user_name')
         userpwd = request.POST.get('pwd')
 
 
         # 2.校验用户登陆数据
+
         if not all([username, userpwd]):
             return redirect(reverse('users:login'))
 
@@ -225,7 +227,7 @@ class LoginView(View):
             # 保存合并的数据到redis
             cart_dict_redis[sku_id] = count
 
-        # 一次性向redis中新增多条记录
+        # 一次性向redis中新增多条记录z
         if cart_dict_redis:
             redis_conn.hmset('cart_%s' % user.id, cart_dict_redis)
 

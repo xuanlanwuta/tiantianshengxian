@@ -172,7 +172,6 @@ class IndexView(View):
         # 先查询是否有缓存，如果有缓存直接读取缓存数据
         context = cache.get('index_page_data')
         if context is None:
-            print('没有缓存，查询数据库')
 
             # 查询商品分类信息
             categorys = GoodsCategory.objects.all()
