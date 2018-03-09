@@ -1,5 +1,5 @@
 """
-WSGI config for dailyfresh project.
+WSGI config for dailyfresh_t project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -10,9 +10,184 @@ from orders.models import OrderInfo,OrderGoods
 from django.utils import timezone
 from django.db import transaction
 from django.core.paginator import Paginator,EmptyPage
+from alipay import AliPay
+from django.conf import settings
+from django.core.cache import cache
 
 
 # Create your views here.
+
+
+class CommentOrderView(LoginRequiredMixin, View):
+    """评论"""
+
+    def get(self, request, order_id):
+        """提供评论页面"""
+
+        user = request.user
+        try:
+            order = OrderInfo.objects.get(order_id=order_id, user=user)
+        except OrderInfo.DoesNotExist:
+            return redirect(reverse("orders:info"))
+
+        order.status_name = OrderInfo.ORDER_STATUS[order.status]
+        order.skus = []
+        order_skus = order.ordergoods_set.all()
+        for order_sku in order_skus:
+            sku = order_sku.sku
+            sku.count = order_sku.count
+            sku.amount = sku.price * sku.count
+            order.skus.append(sku)
+
+        return render(request, "order_comment.html", {"order": order})
+
+    def post(self, request, order_id):
+        """处理评论信息"""
+
+        user = request.user
+        try:
+            order = OrderInfo.objects.get(order_id=order_id, user=user)
+        except OrderInfo.DoesNotExist:
+            return redirect(reverse("orders:info"))
+
+        # 获取评论条数
+        total_count = request.POST.get("total_count")
+        total_count = int(total_count)
+
+        for i in range(1, total_count + 1):
+            sku_id = request.POST.get("sku_%d" % i)
+            content = request.POST.get('content_%d' % i, '')
+            try:
+                order_goods = OrderGoods.objects.get(order=order, sku_id=sku_id)
+            except OrderGoods.DoesNotExist:
+                continue
+
+            order_goods.comment = content
+            order_goods.save()
+
+            # 清除商品详情缓存
+            cache.delete("detail_%s" % sku_id)
+
+        order.status = OrderInfo.ORDER_STATUS_ENUM["FINISHED"]
+        order.save()
+
+        return redirect(reverse("orders:info", kwargs={"page": 1}))
+
+
+class CheckOrderView(LoginRequiredJsonMixin, View):
+    """查询订单状态"""
+
+    def get(self, request):
+        """处理支付订单查询逻辑"""
+
+        # 获取订单id
+        order_id = request.GET.get('order_id')
+
+        # 校验订单id
+        if not order_id:
+            return JsonResponse({'code': 2, 'message': '缺少订单id'})
+
+        # 获取订单信息:状态是待支付，支付方式是支付宝
+        try:
+            order = OrderInfo.objects.get(
+                order_id=order_id,
+                user=request.user,
+                status=OrderInfo.ORDER_STATUS_ENUM["UNPAID"],
+                pay_method=OrderInfo.PAY_METHODS_ENUM["ALIPAY"]
+            )
+        except OrderInfo.DoesNotExist:
+            return JsonResponse({'code': 3, 'message': '订单不存在'})
+
+        # 创建用于支付宝支付的对象
+        alipay = AliPay(
+            appid=settings.ALIPAY_APPID,
+            app_notify_url=None,  # 默认回调url
+            # 自己生产的私钥
+            app_private_key_path=settings.APP_PRIVATE_KEY_PATH,
+            # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            alipay_public_key_path=settings.ALIPAY_PUBLIC_KEY_PATH,
+            sign_type="RSA2",  # RSA 或者 RSA2
+            debug=True  # 默认False 配合沙箱模式使用
+        )
+
+        while True:
+
+            # 查询支付结果
+            response = alipay.api_alipay_trade_query(order_id)
+
+            # 判断支付结果
+            code = response.get('code') # 获取状态码
+            trade_status = response.get('trade_status') # 获取状态描述
+
+            # 判断用户支付成功
+            if code == '10000' and trade_status == 'TRADE_SUCCESS':
+                # 设置订单的支付状态为待评论
+                order.status = OrderInfo.ORDER_STATUS_ENUM["UNCOMMENT"]
+                # 设置支付宝对应的订单编号
+                order.trade_id = response.get('trade_no')
+                order.save()
+
+                return JsonResponse({'code': 0, 'message': '支付成功'})
+
+            elif code == '40004' or (code == '10000' and trade_status == 'WAIT_BUYER_PAY'):
+                # 判断用户其他支付状态，订单支付会有延迟，有些状态会暂时出错
+                continue
+            else:
+                # 判断用户支付失败
+                # 返回失败结果
+                return JsonResponse({'code': 4, 'message': '支付失败'})
+
+
+class PayOrderView(LoginRequiredJsonMixin, View):
+    """订单支付"""
+
+    def post(self, request):
+        """处理对接支付宝逻辑"""
+
+        # 获取订单id
+        order_id = request.POST.get('order_id')
+
+        # 校验订单id
+        if not order_id:
+            return JsonResponse({'code':2, 'message':'缺少订单id'})
+
+        # 获取订单信息:状态是待支付，支付方式是支付宝
+        try:
+            order = OrderInfo.objects.get(
+                order_id = order_id,
+                user = request.user,
+                status = OrderInfo.ORDER_STATUS_ENUM["UNPAID"],
+                pay_method = OrderInfo.PAY_METHODS_ENUM["ALIPAY"]
+            )
+        except OrderInfo.DoesNotExist:
+            return JsonResponse({'code':3, 'message':'订单不存在'})
+
+        # 创建用于支付宝支付的对象
+        alipay = AliPay(
+            appid=settings.ALIPAY_APPID,
+            app_notify_url=None,  # 默认回调url
+            # 自己生产的私钥
+            app_private_key_path=settings.APP_PRIVATE_KEY_PATH,
+            # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            alipay_public_key_path=settings.ALIPAY_PUBLIC_KEY_PATH,
+            sign_type="RSA2",  # RSA 或者 RSA2
+            debug=True  # 默认False 配合沙箱模式使用
+        )
+
+        # 电脑网站支付，需要跳转到https://openapi.alipay.com/gateway.do? + order_string
+        order_string = alipay.api_alipay_trade_page_pay(
+            out_trade_no=order_id,
+            total_amount=str(order.total_amount),  # 将浮点数转成字符串
+            subject='头条生鲜',
+            return_url=None,
+            notify_url=None  # 可选, 不填则使用默认notify url
+        )
+
+        # 生成url:让用户进入支付宝页面的支付网址
+        url = settings.ALIPAY_URL + '?' + order_string
+
+        # 响应结果
+        return JsonResponse({'code':0, 'message':'支付成功', 'url':url})
 
 
 class UserOrdersView(LoginRequiredMixin, View):
@@ -21,15 +196,21 @@ class UserOrdersView(LoginRequiredMixin, View):
     def get(self, request, page):
         """提供订单信息页面"""
 
+        # 获取用户
         user = request.user
         # 查询订单
         orders = user.orderinfo_set.all().order_by("-create_time")
 
+        # 遍历所有订单
         for order in orders:
+            # 绑定订单状态
             order.status_name = OrderInfo.ORDER_STATUS[order.status]
+            # 绑定支付方式
             order.pay_method_name = OrderInfo.PAY_METHODS[order.pay_method]
             order.skus = []
+            # 查询订单商品
             order_skus = order.ordergoods_set.all()
+            # 遍历订单商品
             for order_sku in order_skus:
                 sku = order_sku.sku
                 sku.count = order_sku.count
@@ -116,7 +297,6 @@ class CommitOrderView(LoginRequiredJsonMixin, TransactionAtomicMixin, View):
             # 遍历sku_ids
             for sku_id in sku_ids:
 
-
                 # 每种商品有三次下单机会
                 for i in range(3):
 
@@ -136,7 +316,9 @@ class CommitOrderView(LoginRequiredJsonMixin, TransactionAtomicMixin, View):
                         transaction.savepoint_rollback(save_point)
                         return JsonResponse({'code': 6, 'message': '库存不足'})
 
-          
+                    # 测试并发和乐观锁
+                    # import time
+                    # time.sleep(10)
 
                     # 减少sku库存
                     origin_stock = sku.stock
